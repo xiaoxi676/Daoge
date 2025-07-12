@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交互式报告：中国网络内容安全监管趋势展望</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutral & Authoritative Blue -->
+    <!-- Application Structure Plan: A non-linear, thematic, single-page application designed for exploration. The structure uses a sticky navigation header and four distinct, scrollable sections: 1) An introduction to the core theoretical principles using interactive cards. 2) An interactive visualization of the legal framework, featuring a dynamic bar chart comparing key laws and a CSS-based diagram for the content governance model. 3) A horizontal, clickable timeline to illustrate the evolution of technology-driven regulation. 4) A tabbed interface for future trends and compliance advice. This structure was chosen to deconstruct the dense report into digestible, engaging modules, promoting user interaction and a deeper understanding of the complex relationships between different aspects of the topic, rather than forcing a linear reading experience. -->
+    <!-- Visualization & Content Choices: 1. Core Principles (Cards): Report Info: Three core concepts (Cyber Sovereignty, etc.). -> Goal: Inform & Introduce. -> Viz/Method: Three interactive cards (HTML/CSS). -> Interaction: Click to expand/reveal detailed text. -> Justification: Breaks down foundational theory into manageable entry points. 2. Legal Comparison (Chart.js): Report Info: Table comparing NSL, DSL, PIPL. -> Goal: Compare. -> Viz/Method: Dynamic horizontal bar chart (Chart.js/Canvas). -> Interaction: Hover for tooltips, click buttons to change comparison metric. -> Justification: More engaging and visually effective for comparison than a static table. 3. Content Governance (Diagram): Report Info: Three-tiered content classification. -> Goal: Organize & Explain. -> Viz/Method: Flexbox-based diagram (HTML/CSS). -> Interaction: Hover to see examples. -> Justification: Provides an intuitive, at-a-glance understanding of the unique classification system. 4. Tech Regulation (Timeline): Report Info: Regulation of algorithms, deep synthesis, AIGC. -> Goal: Show Change/Evolution. -> Viz/Method: Interactive horizontal timeline (HTML/CSS/JS). -> Interaction: Click timeline nodes to display corresponding details. -> Justification: Transforms a static table into a clear narrative of regulatory progression. 5. Future Outlook (Tabs): Report Info: Trends and advice. -> Goal: Inform & Advise. -> Viz/Method: Tabbed content area (HTML/JS). -> Interaction: Click tabs to switch between "Trends" and "Strategy". -> Justification: Organizes dense, forward-looking information into distinct, user-selectable categories. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Noto Sans SC', sans-serif; background-color: #F8F7F4; color: #333; }
+        .chart-container { position: relative; width: 100%; max-width: 900px; margin-left: auto; margin-right: auto; height: 400px; max-height: 50vh; }
+        @media (min-width: 768px) { .chart-container { height: 450px; } }
+        .nav-link { transition: color 0.3s, border-color 0.3s; }
+        .nav-link.active, .nav-link:hover { color: #2563EB; border-bottom-color: #2563EB; }
+        .card { transition: transform 0.3s, box-shadow 0.3s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .tab.active { background-color: #2563EB; color: #FFF; }
+        .timeline-item.active .timeline-dot { background-color: #2563EB; transform: scale(1.25); }
+        .timeline-item.active .timeline-title { color: #2563EB; font-weight: 500;}
+    </style>
+</head>
+<body class="bg-[#F8F7F4] text-gray-800">
+
+    <header id="header" class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm transition-all duration-300">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-bold text-lg text-blue-600">监管趋势透视</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#introduction" class="nav-link px-3 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent">核心理论</a>
+                        <a href="#framework" class="nav-link px-3 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent">法律体系</a>
+                        <a href="#evolution" class="nav-link px-3 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent">技术演进</a>
+                        <a href="#outlook" class="nav-link px-3 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent">未来展望</a>
+                    </div>
+                </div>
+                 <div class="md:hidden">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                        <span class="sr-only">打开主菜单</span>
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </nav>
+        <div id="mobile-menu" class="md:hidden hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#introduction" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-500">核心理论</a>
+                <a href="#framework" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-500">法律体系</a>
+                <a href="#evolution" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-500">技术演进</a>
+                <a href="#outlook" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-500">未来展望</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <section class="min-h-[60vh] flex flex-col justify-center items-center text-center py-20">
+            <h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-400">中国网络内容安全监管</h1>
+            <h2 class="text-2xl md:text-4xl font-semibold tracking-tight mb-6">趋势与未来展望</h2>
+            <p class="max-w-3xl mx-auto text-base md:text-lg text-gray-600">
+                本报告深入剖析中国网络信息内容安全监管体系的内在逻辑与未来走向。这并非孤立的规则，而是一套由国家主导、融合意识形态、法律哲学与技术控制的系统性治理工程。让我们共同探索其核心理论、法律框架、技术驱动的演进及未来趋势。
+            </p>
+        </section>
+
+        <section id="introduction" class="py-16 sm:py-24 scroll-mt-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">理论基石：三大核心理念</h2>
+                <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">中国网络治理模式建立在三大理论支柱之上，它们共同为监管提供了方向和法理依据。点击下方卡片，了解每个理念的深刻内涵。</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="card bg-white p-8 rounded-xl shadow-lg cursor-pointer" data-content-id="sovereignty">
+                    <h3 class="text-xl font-semibold mb-2 text-blue-600">🌐 网络空间主权</h3>
+                    <p class="text-gray-600">国家主权在网络空间的自然延伸，强调国家对境内网络事务的最高管辖权。</p>
+                </div>
+                <div class="card bg-white p-8 rounded-xl shadow-lg cursor-pointer" data-content-id="security">
+                    <h3 class="text-xl font-semibold mb-2 text-blue-600">🛡️ 总体国家安全观</h3>
+                    <p class="text-gray-600">将网络安全提升至国家安全战略高度，视其为发展的前提与根本保障。</p>
+                </div>
+                <div class="card bg-white p-8 rounded-xl shadow-lg cursor-pointer" data-content-id="community">
+                    <h3 class="text-xl font-semibold mb-2 text-blue-600">🤝 网络空间命运共同体</h3>
+                    <p class="text-gray-600">中国向世界提出的全球互联网治理方案，倡导共建和平、安全、开放、合作的网络空间。</p>
+                </div>
+            </div>
+            <div id="details-container" class="mt-8"></div>
+        </section>
+
+        <section id="framework" class="py-16 sm:py-24 bg-gray-50 rounded-2xl scroll-mt-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">监管法律体系的“四梁八柱”</h2>
+                <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">中国已构建起一个多层次、联动的法律框架。通过下方的交互式图表和模型，探索其核心法律和独特的治理机制。</p>
+            </div>
+
+            <div class="mb-12">
+                 <h3 class="text-2xl font-semibold text-center mb-4">核心法律对比：三法联动</h3>
+                 <p class="text-center text-gray-600 mb-6">点击按钮切换对比维度，将鼠标悬停在图表条目上查看详细说明。</p>
+                <div class="flex justify-center space-x-2 mb-4" id="chart-controls">
+                    <button class="control-btn px-4 py-2 text-sm rounded-md bg-blue-500 text-white" data-metric="focus">核心焦点</button>
+                    <button class="control-btn px-4 py-2 text-sm rounded-md bg-white" data-metric="obligation">核心义务</button>
+                    <button class="control-btn px-4 py-2 text-sm rounded-md bg-white" data-metric="crossborder">数据跨境</button>
+                </div>
+                <div class="chart-container bg-white p-4 rounded-lg shadow-md">
+                    <canvas id="lawsChart"></canvas>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-2xl font-semibold text-center mb-4">内容生态治理的三级分类</h3>
+                <p class="text-center text-gray-600 mb-8">中国特色的内容治理超越了“合法/非法”的二元划分，将内容分为三类进行管理。将鼠标悬停在板块上查看示例。</p>
+                <div class="flex flex-col md:flex-row gap-4 max-w-4xl mx-auto">
+                    <div class="flex-1 p-6 rounded-lg bg-green-100 text-green-800 text-center transition duration-300 hover:shadow-xl hover:scale-105" data-tooltip="宣传主流思想、经济社会发展亮点、弘扬社会主义核心价值观等。">
+                        <h4 class="font-bold text-lg">👍 鼓励类 (正能量)</h4>
+                        <p class="text-sm mt-2">积极培育和弘扬的内容</p>
+                    </div>
+                    <div class="flex-1 p-6 rounded-lg bg-red-100 text-red-800 text-center transition duration-300 hover:shadow-xl hover:scale-105" data-tooltip="危害国家安全、宣扬恐怖主义、散布淫秽色情、侮辱诽谤他人等。">
+                        <h4 class="font-bold text-lg">🚫 违法类 (硬红线)</h4>
+                        <p class="text-sm mt-2">法律法规明确禁止的内容</p>
+                    </div>
+                    <div class="flex-1 p-6 rounded-lg bg-yellow-100 text-yellow-800 text-center transition duration-300 hover:shadow-xl hover:scale-105" data-tooltip="标题党、炒作绯闻、宣扬低俗媚俗、诱导未成年人不良嗜好等。">
+                        <h4 class="font-bold text-lg">⚠️ 不良类 (灰色地带)</h4>
+                        <p class="text-sm mt-2">对网络生态造成不良影响的内容</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="evolution" class="py-16 sm:py-24 scroll-mt-16">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">技术驱动的监管演进</h2>
+                <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">监管的触角已从内容本身延伸至驱动信息生态的核心技术。点击下方时间轴上的节点，查看针对不同技术的监管策略。</p>
+            </div>
+            <div class="relative w-full">
+                <div class="absolute left-0 top-1/2 w-full h-0.5 bg-gray-300 -translate-y-1/2"></div>
+                <div class="relative flex justify-between" id="timeline-container">
+                    <div class="timeline-item cursor-pointer text-center w-1/4 active" data-tech="algorithm">
+                        <div class="timeline-dot relative w-6 h-6 rounded-full bg-white border-2 border-gray-300 mx-auto transition-all duration-300 flex items-center justify-center"><div class="w-3 h-3 bg-gray-300 rounded-full"></div></div>
+                        <h4 class="timeline-title mt-2 text-sm md:text-base font-medium transition-colors duration-300">算法推荐</h4>
+                        <span class="text-xs text-gray-500">2022</span>
+                    </div>
+                    <div class="timeline-item cursor-pointer text-center w-1/4" data-tech="synthesis">
+                        <div class="timeline-dot relative w-6 h-6 rounded-full bg-white border-2 border-gray-300 mx-auto transition-all duration-300 flex items-center justify-center"><div class="w-3 h-3 bg-gray-300 rounded-full"></div></div>
+                        <h4 class="timeline-title mt-2 text-sm md:text-base font-medium transition-colors duration-300">深度合成</h4>
+                         <span class="text-xs text-gray-500">2023.01</span>
+                    </div>
+                    <div class="timeline-item cursor-pointer text-center w-1/4" data-tech="aigc">
+                        <div class="timeline-dot relative w-6 h-6 rounded-full bg-white border-2 border-gray-300 mx-auto transition-all duration-300 flex items-center justify-center"><div class="w-3 h-3 bg-gray-300 rounded-full"></div></div>
+                        <h4 class="timeline-title mt-2 text-sm md:text-base font-medium transition-colors duration-300">生成式AI</h4>
+                         <span class="text-xs text-gray-500">2023.08</span>
+                    </div>
+                     <div class="timeline-item cursor-pointer text-center w-1/4" data-tech="regtech">
+                        <div class="timeline-dot relative w-6 h-6 rounded-full bg-white border-2 border-gray-300 mx-auto transition-all duration-300 flex items-center justify-center"><div class="w-3 h-3 bg-gray-300 rounded-full"></div></div>
+                        <h4 class="timeline-title mt-2 text-sm md:text-base font-medium transition-colors duration-300">监管科技</h4>
+                         <span class="text-xs text-gray-500">进行中</span>
+                    </div>
+                </div>
+            </div>
+            <div id="tech-details" class="mt-12 bg-white p-6 rounded-lg shadow-inner min-h-[250px]">
+            </div>
+        </section>
+
+        <section id="outlook" class="py-16 sm:py-24 bg-gray-50 rounded-2xl scroll-mt-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">未来趋势与合规建议</h2>
+                <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">监管将如何在安全与发展间寻求动态平衡？企业应如何制定前瞻性的合规策略？点击下方标签页切换查看。</p>
+            </div>
+            <div class="max-w-4xl mx-auto">
+                <div class="flex border-b border-gray-200">
+                    <button class="tab flex-1 py-2 px-4 text-center font-medium text-gray-500 transition-all duration-300 active" data-tab="trends">未来趋势展望</button>
+                    <button class="tab flex-1 py-2 px-4 text-center font-medium text-gray-500 transition-all duration-300" data-tab="strategy">战略性合规建议</button>
+                </div>
+                <div class="mt-8">
+                    <div id="trends" class="tab-content">
+                        <ul class="space-y-4">
+                            <li class="p-4 bg-white rounded-md shadow-sm"><strong class="text-blue-600">动态平衡：</strong>在“高水平安全”与“高质量发展”之间寻求平衡，监管强度将分层化、目标化。</li>
+                            <li class="p-4 bg-white rounded-md shadow-sm"><strong class="text-blue-600">数据跨境：</strong>推广“自贸区先行先试+负面清单”模式，为低风险数据流动提供便利。</li>
+                            <li class="p-4 bg-white rounded-md shadow-sm"><strong class="text-blue-600">立法精细化：</strong>从宏观框架走向“工笔画”式的场景化、行业化立法，出台更多操作指引和国家标准。</li>
+                        </ul>
+                    </div>
+                    <div id="strategy" class="tab-content hidden">
+                        <ul class="space-y-4">
+                            <li class="p-4 bg-white rounded-md shadow-sm"><strong class="text-blue-600">战略风险管理：</strong>超越反应式合规，建立前瞻性风险预判框架，理解监管背后的政治逻辑。</li>
+                            <li class="p-4 bg-white rounded-md shadow-sm"><strong class="text-blue-600">设计即合规：</strong>将监管要求内嵌于产品、技术和商业模式的全过程，而非后期“打补丁”。</li>
+                            <li class="p-4 bg-white rounded-md shadow-sm"><strong class="text-blue-600">培养政策嗅觉：</strong>密切跟踪政策动向，解读“潜台词”，预判监管重点。</li>
+                            <li class="p-4 bg-white rounded-md shadow-sm"><strong class="text-blue-600">善用政策高地：</strong>利用自贸区等“监管沙盒”的试点政策，寻求业务灵活性。</li>
+                            <li class="p-4 bg-white rounded-md shadow-sm"><strong class="text-blue-600">构建差异化体系：</strong>为中国市场量身定制独立的运营模式，实现“一个公司，两种制度”。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="bg-gray-800 text-white">
+        <div class="container mx-auto py-4 px-5 text-center">
+            <p class="text-sm text-gray-400">此交互式报告基于调研报告生成，仅供学习和参考。</p>
+        </div>
+    </footer>
+    
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const detailsData = {
+        sovereignty: {
+            title: '网络空间主权',
+            content: '“网络空间主权”是中国在全球互联网治理领域提出的核心主张，也是其国内网络立法的根本法理依据。它被定义为国家主权在网络空间的自然延伸，涵盖对内最高权和对外独立权。这一理念将网络空间的治理从一个技术或商业问题，重新定义为一个主权和安全问题，为国家进行前置性、系统性的网络立法提供了坚实的法理基础。'
+        },
+        security: {
+            title: '总体国家安全观',
+            content: '“总体国家安全观”将网络安全提升至前所未有的战略高度，强调“没有网络安全就没有国家安全”。这一“大安全”理念深刻塑造了中国网络监管的辩证逻辑：安全是发展的前提。在政策制定和监管实践中，安全考量往往具有优先权，这解释了监管法规中许多条款的宽泛性和预防性特征。'
+        },
+        community: {
+            title: '网络空间命运共同体',
+            content: '这是中国向世界提出的全球互联网治理方案，是其国内治理理念在国际舞台上的延伸。它主张网络空间的前途命运应由世界各国共同掌握，并强调“尊重网络主权”是国际合作的前提。该理念旨在为全球网络治理提供一个区别于西方主导模式的替代性方案，推动构建一个更加公平、正义、平衡的全球网络治理体系。'
+        }
+    };
+
+    const cards = document.querySelectorAll('.card');
+    const detailsContainer = document.getElementById('details-container');
+    let activeCard = null;
+
+    cards.forEach(card => {
+        card.addEventListener('click', () => {
+            const contentId = card.dataset.contentId;
+            const data = detailsData[contentId];
+
+            if (activeCard === card) {
+                detailsContainer.innerHTML = '';
+                activeCard.classList.remove('ring-2', 'ring-blue-500');
+                activeCard = null;
+                return;
+            }
+
+            if (activeCard) {
+                activeCard.classList.remove('ring-2', 'ring-blue-500');
+            }
+
+            detailsContainer.innerHTML = `
+                <div class="bg-white p-6 rounded-lg shadow-lg border border-blue-200 transition-all duration-500 ease-in-out transform animate-fade-in">
+                    <h4 class="text-2xl font-bold text-blue-700 mb-3">${data.title}</h4>
+                    <p class="text-gray-700 leading-relaxed">${data.content}</p>
+                </div>
+            `;
+            
+            card.classList.add('ring-2', 'ring-blue-500');
+            activeCard = card;
+        });
+    });
+
+    const lawsChartData = {
+        labels: ['《网络安全法》 (NSL)', '《数据安全法》 (DSL)', '《个人信息保护法》 (PIPL)'],
+        datasets: {
+            focus: [{
+                label: '核心焦点',
+                data: [3, 4, 5],
+                backgroundColor: ['rgba(59, 130, 246, 0.7)', 'rgba(34, 197, 94, 0.7)', 'rgba(239, 68, 68, 0.7)'],
+                tooltips: [
+                    '网络运行安全、基础设施保护',
+                    '所有数据处理活动的安全，特别是“重要数据”',
+                    '个人信息处理中个人权益的保护'
+                ]
+            }],
+            obligation: [{
+                label: '核心义务',
+                data: [4, 3, 5],
+                backgroundColor: ['rgba(59, 130, 246, 0.7)', 'rgba(34, 197, 94, 0.7)', 'rgba(239, 68, 68, 0.7)'],
+                tooltips: [
+                    '等级保护、CII保护、实名注册',
+                    '数据分类分级、风险评估、重要数据安全审查',
+                    '“告知-同意”原则、单独同意、个人信息保护影响评估'
+                ]
+            }],
+            crossborder: [{
+                label: '数据跨境',
+                data: [3, 4, 5],
+                backgroundColor: ['rgba(59, 130, 246, 0.7)', 'rgba(34, 197, 94, 0.7)', 'rgba(239, 68, 68, 0.7)'],
+                tooltips: [
+                    'CII产生数据原则上境内存储，出境需安全评估',
+                    '建立重要数据出境管制框架',
+                    '需具备合法依据（安全评估、标准合同等）并获单独同意'
+                ]
+            }]
+        }
+    };
+
+    const ctx = document.getElementById('lawsChart').getContext('2d');
+    let myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: lawsChartData.labels,
+            datasets: lawsChartData.datasets.focus
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { display: false },
+                y: { beginAtZero: true }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return lawsChartData.datasets[currentMetric][0].tooltips[context.dataIndex];
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    let currentMetric = 'focus';
+    const controlBtns = document.querySelectorAll('.control-btn');
+    controlBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentMetric = btn.dataset.metric;
+            myChart.data.datasets = lawsChartData.datasets[currentMetric];
+            myChart.update();
+            controlBtns.forEach(b => {
+                b.classList.remove('bg-blue-500', 'text-white');
+                b.classList.add('bg-white');
+            });
+            btn.classList.add('bg-blue-500', 'text-white');
+            btn.classList.remove('bg-white');
+        });
+    });
+
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    const techDetailsContainer = document.getElementById('tech-details');
+    const techData = {
+        algorithm: {
+            title: '算法规制：从内容到分发的穿透式监管',
+            content: '通过《互联网信息服务算法推荐管理规定》，监管从“管内容”转向“管分发”。核心要求包括：<br>• 坚持主流价值导向，积极传播正能量。<br>• 禁止诱导用户沉迷、过度消费。<br>• 保障用户选择权与知情权，可关闭算法推荐。<br>• 对具有舆论属性的服务进行算法备案与安全评估。'
+        },
+        synthesis: {
+            title: '深度合成治理：为“眼见为实”划定边界',
+            content: '通过《互联网信息服务深度合成管理规定》，对Deepfake等技术进行前瞻性规制。核心要求包括：<br>• 对生成内容进行显著标识，防止混淆。<br>• 训练数据来源需合法合规。<br>• 建立技术管理和安全审查制度。<br>• 具有舆论属性的服务需进行安全评估和算法备案。'
+        },
+        aigc: {
+            title: '生成式AI治理：确保“装好刹车再上路”',
+            content: '通过《生成式人工智能服务管理暂行办法》，在全球率先为AIGC制定规则。核心要求与深度合成类似，并强调：<br>• 服务提供者对生成内容负责（认定为内容生产者）。<br>• 训练数据不得侵害知识产权，处理个人信息需获同意。<br>• 生成内容需体现社会主义核心价值观。'
+        },
+        regtech: {
+            title: '监管科技（RegTech）：以技术手段提升治理效能',
+            content: '政府自身也在积极拥抱“监管科技”，进入“以技术管技术”的新阶段。核心应用包括：<br>• 利用大数据、AI进行全天候风险监测与预警。<br>• 通过技术平台实现监管数据的自动化报送和处理。<br>• 运用图数据分析等技术进行智能穿透式监管。<br>• 旨在实现数据驱动的、近乎实时的全景式监管。'
+        }
+    };
+    
+    function updateTechDetails(techKey) {
+        const data = techData[techKey];
+        techDetailsContainer.innerHTML = `
+            <h4 class="text-xl font-bold text-blue-700 mb-3">${data.title}</h4>
+            <p class="text-gray-700 leading-relaxed">${data.content}</p>
+        `;
+    }
+
+    timelineItems.forEach(item => {
+        item.addEventListener('click', () => {
+            timelineItems.forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+            updateTechDetails(item.dataset.tech);
+        });
+    });
+    updateTechDetails('algorithm');
+
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            const targetId = tab.dataset.tab;
+            tabContents.forEach(content => {
+                if (content.id === targetId) {
+                    content.classList.remove('hidden');
+                } else {
+                    content.classList.add('hidden');
+                }
+            });
+        });
+    });
+    
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('section');
+    const header = document.getElementById('header');
+    
+    const observerOptions = {
+        root: null,
+        rootMargin: `-${header.offsetHeight}px 0px 0px 0px`,
+        threshold: 0.3
+    };
+
+    const sectionObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.getAttribute('id');
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${id}`) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    }, observerOptions);
+
+    sections.forEach(section => {
+        sectionObserver.observe(section);
+    });
+
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+    
+    const mobileNavLinks = document.querySelectorAll('#mobile-menu .nav-link');
+    mobileNavLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            mobileMenu.classList.add('hidden');
+        });
+    });
+
+});
+</script>
+</body>
+</html>
